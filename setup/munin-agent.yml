@@ -1,0 +1,22 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+  tasks:
+    - name: add repos
+      yum: name={{item}} state=present
+      with_items:
+        - http://ftp.riken.jp/Linux/fedora/epel/6/i386/epel-release-6-8.noarch.rpm
+    - name: yum install
+      yum: name={{item}} state=latest
+      with_items:
+      - munin-node
+      notify:
+      - munin-node restart
+    - name: munin-node start
+      service: name=munin-node state=started
+  handlers:
+    - name: munin-node restart
+      action: service name=munin-node state=restarted

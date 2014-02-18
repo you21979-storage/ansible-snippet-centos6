@@ -1,0 +1,39 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+    server_name : localhost
+    config: templates/munin-nginx
+  tasks:
+    - name: add repos
+      yum: name={{item}} state=present
+      with_items:
+        - http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm
+        - http://ftp.riken.jp/Linux/fedora/epel/6/i386/epel-release-6-8.noarch.rpm
+    - name: yum install
+      yum: name={{item}} state=latest
+      with_items:
+      - nginx
+      - munin
+      - munin-node
+      - spawn-fcgi
+      notify:
+      - nginx restart
+      - munin-node restart
+    - name: config copy
+      template: src={{ config }}/etc/nginx/conf.d/nginx-munin.conf.j2 dest=/etc/nginx/conf.d/nginx-munin.conf mode=0644
+    - name: init.d copy
+      copy: src={{ config }}/etc/init.d/munin-fcgi dest=/etc/init.d/munin-fcgi mode=0755
+    - name: nginx start
+      service: name=nginx state=started
+    - name: munin-node start
+      service: name=munin-node state=started
+    - name: munin-fcgi start
+      service: name=munin-fcgi state=started
+  handlers:
+    - name: nginx restart
+      action: service name=nginx state=restarted
+    - name: munin-node restart
+      action: service name=munin-node state=restarted

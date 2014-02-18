@@ -1,0 +1,27 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+  tasks:
+    - name: add repository
+      yum: name=$item state=present
+      with_items:
+      - http://ftp.riken.jp/Linux/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
+      - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+    - name: install yum
+      yum: name=$item state=latest
+      with_items:
+        - gcc-c++
+        - nodejs
+        - npm
+        - redis
+    - name: install pm2
+      npm: name=pm2 global=yes state=latest
+    - name: pm2 init
+      command: pm2 startup centos creates=/etc/init.d/pm2-init.sh
+    - name: pm2 start
+      service: name=pm2-init.sh state=started
+    - name: redis start
+      service: name=redis state=started

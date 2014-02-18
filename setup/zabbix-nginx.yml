@@ -1,0 +1,36 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+    server_name : localhost
+    config: templates/zabbix-nginx
+  tasks:
+    - name: add repos
+      yum: name={{item}} state=present
+      with_items:
+        - http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm
+        - http://repo.zabbix.jp/relatedpkgs/rhel6/i386/zabbix-jp-release-6-6.noarch.rpm
+        - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+    - name: yum install
+      yum: name={{item}} enablerepo=remi state=latest
+      with_items:
+      - nginx
+      - php-fpm
+      - mysql
+      - mysql-server
+      - mysql-libs
+      - mysql-devel
+      - zabbix22
+      - zabbix22-server-mysql
+      - zabbix22-web-mysql
+      - zabbix22-dbfiles-mysql
+      - zabbix22-agent
+      notify:
+      - nginx restart
+    - name: nginx start
+      service: name=nginx state=started
+  handlers:
+    - name: nginx restart
+      action: service name=nginx state=restarted

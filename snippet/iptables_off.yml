@@ -1,0 +1,9 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+  tasks:
+    - name: iptables stop
+      service: name=iptables state=stopped

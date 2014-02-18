@@ -1,0 +1,22 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+  tasks:
+    - name: repo jenkins
+      yum: name=http://pkg.jenkins-ci.org/redhat/jenkins-1.551-1.1.noarch.rpm state=present
+    - name: yum install
+      yum: name={{item}} state=latest
+      with_items:
+      - java-1.7.0-openjdk
+      - jenkins
+      - subversion
+      - git
+      notify: jenkins restart
+    - name: jenkins start
+      service: name=jenkins state=started
+  handlers:
+    - name: jenkins restart
+      action: service name=jenkins state=restarted

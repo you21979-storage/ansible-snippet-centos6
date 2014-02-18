@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# munin-fcgi        Startup script for munin-fcgi
+#
+# chkconfig: - 85 15
+# Default-Start: 2 3 4 5# Default-Stop: 0 1 6
+LANG=C
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/bin/spawn-fcgi
+SOCK_USER=nginx
+FCGI_USER=munin
+FCGI_GROUP=munin
+CMDPATH=/var/www/cgi-bin
+RUNPATH=/var/run/munin
+GRAPHCMD=munin-cgi-graph
+HTMLCMD=munin-cgi-html
+
+if [ ! -x $DAEMON ]; then
+    echo "File not found or is not executable: $DAEMON!"
+    exit 0
+fi
+
+start(){
+    if [ ! -e ${RUNPATH}/${GRAPHCMD}.sock ];
+      then        ${DAEMON} -s ${RUNPATH}/${GRAPHCMD}.sock -U ${SOCK_USER} \
+        -u ${FCGI_USER} -g ${FCGI_GROUP} ${CMDPATH}/${GRAPHCMD}
+      else
+        rm -f ${RUNPATH}/${GRAPHCMD}.sock
+        ${DAEMON} -s ${RUNPATH}/${GRAPHCMD}.sock -U ${SOCK_USER} \
+        -u ${FCGI_USER} -g ${FCGI_GROUP} ${CMDPATH}/${GRAPHCMD}
+    fi
+    if [ ! -e ${RUNPATH}/${HTMLCMD}.sock ];
+      then
+        ${DAEMON} -s ${RUNPATH}/${HTMLCMD}.sock -U ${SOCK_USER} \
+        -u ${FCGI_USER} -g ${FCGI_GROUP} ${CMDPATH}/${HTMLCMD}
+      else
+        rm -f ${RUNPATH}/${HTMLCMD}.sock
+        ${DAEMON} -s ${RUNPATH}/${HTMLCMD}.sock -U ${SOCK_USER} \
+        -u ${FCGI_USER} -g ${FCGI_GROUP} ${CMDPATH}/${HTMLCMD}
+    fi
+}
+
+stop(){
+    for i in $(ps -aef | egrep "(${GRAPHCMD}$|${HTMLCMD}$)" | awk '{print $2}')
+    do        kill -9 $i
+    done
+    rm -f ${RUNPATH}/${GRAPHCMD}.sock
+    rm -f ${RUNPATH}/${HTMLCMD}.sock
+}
+
+case $1 in
+  [sS][tT][aA][rR][tT])
+    start
+    ;;
+  [sS][tT][oO][pP])
+    stop
+    ;;
+  [rR][eE][sS][tT][aA][rR][tT])
+    stop && start
+esac

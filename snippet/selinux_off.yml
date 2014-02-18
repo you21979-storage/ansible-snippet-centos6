@@ -1,0 +1,12 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+  tasks:
+    - name: install python-selinux
+      yum: pkg=libselinux-python state=latest
+
+    - name: disable selinux
+      selinux: state=disabled

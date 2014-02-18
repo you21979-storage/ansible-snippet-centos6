@@ -1,0 +1,20 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+  tasks:
+    - name: yum install
+      yum: name={{item}} state=latest
+      with_items:
+      - ircd-hybrid
+    - name: copy config
+      copy: src=/usr/share/doc/ircd-hybrid-7.2.3/simple.conf dest=/etc/ircd/ircd.conf mode=0644
+      notify:
+      - ird restart
+    - name: irc start
+      service: name=ircd state=started
+  handlers:
+    - name: irc restart
+      action: service name=ircd state=restarted

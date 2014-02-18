@@ -1,0 +1,24 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+    server_name : localhost
+    config: templates/zabbix-agent
+  tasks:
+    - name: add repos
+      yum: name={{item}} state=present
+      with_items:
+        - http://repo.zabbix.jp/relatedpkgs/rhel6/i386/zabbix-jp-release-6-6.noarch.rpm
+    - name: yum install
+      yum: name={{item}} state=latest
+      with_items:
+      - zabbix22-agent
+      notify:
+      - zabbix-agent restart
+    - name: zabbix-agent start
+      service: name=zabbix-agentd state=started
+  handlers:
+    - name: zabbix-agent restart
+      action: service name=zabbix-agentd state=restarted
