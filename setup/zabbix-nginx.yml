@@ -34,6 +34,8 @@
       template: src={{ config }}/etc/nginx/conf.d/nginx-zabbix.conf.j2 dest=/etc/nginx/conf.d/nginx-zabbix.conf mode=0644
     - name: nginx start
       service: name=nginx state=started
+    - name: php-fpm start
+      service: name=php-fpm state=started
   handlers:
     - name: nginx restart
       action: service name=nginx state=restarted
