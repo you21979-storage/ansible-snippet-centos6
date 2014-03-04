@@ -5,6 +5,7 @@
   vars:
     tmpdir: /tmp
     server_name : localhost
+    server_port : 10000
     config: templates/munin-nginx
   tasks:
     - name: add repos
