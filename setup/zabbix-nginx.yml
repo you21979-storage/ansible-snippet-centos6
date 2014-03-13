@@ -4,7 +4,7 @@
 
   vars:
     tmpdir: /tmp
-    server_name : localhost
+    server_name : {{ansible_eth0.ipv4.address}}
     server_port : 10001
     config: templates/zabbix-nginx
   tasks:
