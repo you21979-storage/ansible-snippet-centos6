@@ -15,4 +15,4 @@
     - name: create directory
       file: path={{installdir}}/jmeter state=directory owner=root group=root mode=0755
     - name: extract
-      command: tar zxvf {{tmpdir}}/apache-jmeter-2.11.tgz chdir={{installdir}}/jmeter
+      command: tar zxvf {{tmpdir}}/apache-jmeter-2.11.tgz chdir={{installdir}}
