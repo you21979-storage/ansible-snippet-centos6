@@ -1,0 +1,17 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+    config: templates/zram
+  tasks:
+    - name: install bc
+      yum: name=bc state=latest
+
+    - name: init.d copy
+      copy: src={{ config }}/etc/init.d/zram dest=/etc/init.d/zram mode=0755
+
+    - name: zram start
+      service: name=zram state=started
+
