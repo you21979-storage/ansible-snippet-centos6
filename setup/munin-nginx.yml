@@ -4,7 +4,8 @@
 
   vars:
     tmpdir: /tmp
-    server_name : localhost
+    server_name : {{ansible_eth0.ipv4.address}}
+    server_port : 10000
     config: templates/munin-nginx
   tasks:
     - name: add repos

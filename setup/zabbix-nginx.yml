@@ -4,7 +4,8 @@
 
   vars:
     tmpdir: /tmp
-    server_name : localhost
+    server_name : {{ansible_eth0.ipv4.address}}
+    server_port : 10001
     config: templates/zabbix-nginx
   tasks:
     - name: add repos
@@ -14,7 +15,7 @@
         - http://repo.zabbix.jp/relatedpkgs/rhel6/i386/zabbix-jp-release-6-6.noarch.rpm
         - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
     - name: yum install
-      yum: name={{item}} enablerepo=remi state=latest
+      yum: name={{item}} enablerepo=remi,zabbix-jp state=latest
       with_items:
       - nginx
       - php-fpm
@@ -29,8 +30,12 @@
       - zabbix22-agent
       notify:
       - nginx restart
+    - name: config copy
+      template: src={{ config }}/etc/nginx/conf.d/nginx-zabbix.conf.j2 dest=/etc/nginx/conf.d/nginx-zabbix.conf mode=0644
     - name: nginx start
       service: name=nginx state=started
+    - name: php-fpm start
+      service: name=php-fpm state=started
   handlers:
     - name: nginx restart
       action: service name=nginx state=restarted

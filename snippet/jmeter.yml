@@ -1,0 +1,18 @@
+---
+- hosts: all
+  user: root
+
+  vars:
+    tmpdir: /tmp
+    installdir: /opt
+  tasks:
+    - name: install java
+      yum: name={{item}} state=latest
+      with_items:
+        - java
+    - name: wget jmeter
+      get_url: url=http://ftp.kddilabs.jp/infosystems/apache//jmeter/binaries/apache-jmeter-2.11.tgz dest={{tmpdir}}/apache-jmeter-2.11.tgz
+    - name: create directory
+      file: path={{installdir}}/jmeter state=directory owner=root group=root mode=0755
+    - name: extract
+      command: tar zxvf {{tmpdir}}/apache-jmeter-2.11.tgz chdir={{installdir}}
